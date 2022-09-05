@@ -1,0 +1,468 @@
+# Easier navigation: .., ..., ...., ....., ~ and -
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+alias ~="cd ~" # `cd` is probably faster to type though
+alias -- -="cd -"
+
+# Shortcuts
+alias d="cd ~/Downloads"
+alias dt="cd ~/Desktop"
+alias p="cd ~/dev"
+alias t="cd /tmp"
+alias g="git"
+alias h="history"
+alias j="jobs"
+
+# Diretório
+alias rmd="rm -rf"
+
+# Detect which `ls` flavor is in use
+colorflag="-G"
+
+# List all files colorized in long format
+alias l="ls -lF ${colorflag}"
+
+# npm
+alias npm="npm -dd" 
+
+# List all files colorized in long format, including dot files
+alias la="ls -laF ${colorflag}"
+alias ll="la"
+
+# List only directories
+alias lsd="ls -lF ${colorflag} | grep --color=never '^d'"
+
+# Always use color output for `ls`
+alias ls="command ls ${colorflag}"
+export LS_COLORS='no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:'
+
+# Grep with Color
+alias grep="egrep --color"
+# Get week number
+alias week='date +%V'
+
+# Stopwatch
+alias timer='echo "Timer started. Stop with Ctrl-D." && date && time cat && date'
+
+# IP addresses
+alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias localip="ipconfig getifaddr en0"
+alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
+
+# Canonical hex dump; some systems have this symlinked
+command -v hd > /dev/null || alias hd="hexdump -C"
+
+# OS X has no `sha1sum`, so use `shasum` as a fallback
+command -v sha1sum > /dev/null || alias sha1sum="shasum"
+
+# Recursively delete `.DS_Store` files
+alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
+
+# URL-encode strings
+alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
+
+# Ring the terminal bell, and put a badge on Terminal.app’s Dock icon
+# (useful when executing time-consuming commands)
+alias badge="tput bel"
+
+# Intuitive map function
+# For example, to list all directories that contain a certain file:
+# find . -name .gitattributes | map dirname
+alias map="xargs -n1"
+
+# ssh do dev-git
+alias gitdev="ssh -t dev.fermen.to \"cd /var/git/; bash\""
+alias gitprd="ssh -t web.fermen.to \"cd /var/git/; bash\""
+alias webdev="ssh -t dev.fermen.to \"cd /var/www/; bash\""
+alias webprd="ssh -t web.fermen.to \"cd /var/www/; bash\""
+alias sshdev="ssh -t dev.fermen.to \"cd ; bash\""
+alias sshprd="ssh -t web.fermen.to \"cd ; bash\""
+alias nginxdev="ssh -t dev.fermen.to \"cd /etc/nginx/; bash\""
+alias nginxprd="ssh -t web.fermen.to \"cd /etc/nginx/; bash\""
+alias did="vim +'normal Go' +'r!date' ~/did.txt"
+
+# use vim
+if which vim >/dev/null 2>&1; then
+  alias vi="vim"
+fi
+
+# add ssh-key to ssh-agent when key exist
+if [ "$SSH_AUTH_SOCK" != "" ] && [ -f ~/.ssh/id_rsa ] && [ -x /usr/bin/ssh-add  ]; then
+  ssh-add -l >/dev/null || alias ssh='(ssh-add -l >/dev/null || ssh-add) && unalias ssh; ssh'
+fi
+
+# safety features
+#alias chown='chown --preserve-root'
+#alias chmod='chmod --preserve-root'
+#alias chgrp='chgrp --preserve-root'
+
+# dmesg with readable time
+alias dmesg='dmesg -T'
+
+  # ------------------------------------------------------------------------------
+  # | Global Quick Commands                                                      |
+  # ------------------------------------------------------------------------------
+
+  # quick edit
+  alias zshrc="vim ~/.zshrc"
+  alias vimrc="vim ~/.vimrc"
+
+  # Print each PATH entry on a separate line
+  alias path="echo -e ${PATH//:/\\n}"
+
+  # ------------------------------------------------------------------------------
+  # | Navigation                                                                 |
+  # ------------------------------------------------------------------------------
+
+  # Push and pop directories on directory stack
+  alias pu='pushd'
+  alias po='popd'
+
+  # ------------------------------------------------------------------------------
+  # | Directories Commands (create / remove)                                     |
+  # ------------------------------------------------------------------------------
+
+  # mkdir: always create parent-dirs, if needed
+  alias mkdir="mkdir -p"
+
+  # rmdir
+  alias rd="rmdir"
+
+  # ------------------------------------------------------------------------------
+  # | Colors                                                                     |
+  # ------------------------------------------------------------------------------
+
+  if [ "$TERM" != "dumb" ]; then
+
+    # dircolors
+    if [[ "$SYSTEM_TYPE" == "LINUX" || "$SYSTEM_TYPE" == "CYGWIN" ]]; then
+      if [ -s "$HOME/.dircolors" ]; then
+        eval "$(dircolors -b $HOME/.dircolors)"
+      else
+        eval "$(dircolors -b)"
+      fi
+    fi
+
+    # enable ls colors
+    if [[ "$DISABLE_LS_COLORS" != "true" ]]; then
+      if [[ "$SYSTEM_TYPE" == "NET_BSD" ]]; then
+        # On NetBSD, test if "gls" (GNU ls) is installed (this one supports colors);
+        # otherwise, leave ls as is, because NetBSD's ls doesn't support -G
+        gls --color -d . &>/dev/null 2>&1 && COLORFLAG="--color=tty"
+      elif [[ "$SYSTEM_TYPE" == "OPEN_BSD" ]]; then
+        # On OpenBSD, test if "colorls" is installed (this one supports colors);
+        # otherwise, leave ls as is, because OpenBSD's ls doesn't support -G
+        colorls -G -d . &>/dev/null 2>&1 && COLORFLAG="-G"
+      elif [[ "$SYSTEM_TYPE" == "OSX" ]]; then
+        # on OS X use "-G"
+        COLORFLAG="-G"
+      elif ls --color -d . &>/dev/null 2>&1; then
+        COLORFLAG="--color"
+        if [[ "$SYSTEM_TYPE" == "LINUX" || "$SYSTEM_TYPE" == "CYGWIN" ]]; then
+          COLORFLAG="--color=auto"
+        fi
+      fi
+    fi
+
+    # Burl: better curl shortcuts (https://github.com/visionmedia/burl).
+    if command -v burl > /dev/null; then
+      alias curl_get='burl GET'
+      alias curl_head='burl -I'
+      alias curl_post='burl POST'
+      alias curl_put='burl PUT'
+      alias curl_patch='burl PATCH'
+      alias curl_delete='burl DELETE'
+      alias curl_options='burl OPTIONS'
+    fi
+
+    # Use "colordiff" or "highlight" to colour diffs.
+    if command -v colordiff > /dev/null; then
+      alias difflight="colordiff"
+    elif command -v highlight > /dev/null; then
+      alias difflight="highlight --dark-red ^-.* \
+        | highlight --dark-green ^+.* \
+        | highlight --yellow ^Only.* \
+        | highlight --yellow ^Files.*differ$ \
+        | less -XFIRd"
+    else
+      alias difflight="less -XFIRd"
+    fi
+
+    # Use GRC for additionnal colorization
+    if which grc >/dev/null 2>&1; then
+      alias colour="grc -es --colour=auto"
+      alias as="colour as"
+      alias configure="colour ./configure"
+      alias diff="colour diff"
+      alias dig="colour dig"
+      alias g++="colour g++"
+      alias gas="colour gas"
+      alias gcc="colour gcc"
+      alias head="colour head"
+      alias ifconfig="colour ifconfig"
+      alias ld="colour ld"
+      alias ls="colour ls"
+      alias make="colour make"
+      alias mount="colour mount"
+      alias netstat="colour netstat"
+      alias ping="colour ping"
+      alias ps="colour ps"
+      alias tail="colour tail"
+      alias traceroute="colour traceroute"
+      alias syslog="sudo colour tail -f -n 100 /var/log/syslog"
+    fi
+
+    # replace top with htop
+    if command -v htop >/dev/null; then
+      alias top_orig="/usr/bin/top"
+      alias top="htop"
+    fi
+
+    # Colorize the grep command output for ease of use (good for log files)
+    alias grep="grep $COLORFLAG"
+    alias egrep="egrep $COLORFLAG"
+    alias fgrep="fgrep $COLORFLAG"
+  fi
+
+  # ------------------------------------------------------------------------------
+  # | List Directory Contents (ls)                                               |
+  # ------------------------------------------------------------------------------
+
+  # list all files colorized in long format
+  alias l="ls -lhF $COLORFLAG"
+  # list all files with directories
+  alias ldir="l -R"
+  # Show hidden files
+  alias l.="ls -dlhF .* $COLORFLAG"
+  alias ldot="l."
+  # use colors
+  alias ls="ls -F $COLORFLAG"
+  # display only files & dir in a v-aling view
+  alias l1="ls -1 $COLORFLAG"
+  # displays all files and directories in detail
+  alias la="ls -laFh $COLORFLAG"
+  # displays all files and directories in detail (without "." and without "..")
+  alias lA="ls -lAFh $COLORFLAG"
+  alias lsa="la"
+  # displays all files and directories in detail with newest-files at bottom
+  alias lr="ls -laFhtr $COLORFLAG"
+  # show last 10 recently changed files
+  alias lt="ls -altr | grep -v '^d' | tail -n 10"
+  # show files and directories (also in sub-dir) that was touched in the last hour
+  alias lf="find ./* -ctime -1 | xargs ls -ltr $COLORFLAG"
+  # displays files and directories in detail
+  alias ll="ls -lFh $COLORFLAG"
+  # shows the most recently modified files at the bottom of
+  alias llr="ls -lartFh $COLORFLAG"
+  # list only directories
+  alias lsd="ls -lFh $COLORFLAG | grep --color=never '^d'"
+  # sort by file-size
+  alias lS="ls -1FSshr $COLORFLAG"
+
+if [ "$SYSTEM_TYPE" != "OSX" ]; then
+  # displays files and directories
+  alias dir="ls --format=vertical $COLORFLAG"
+  # displays more information about files and directories
+  alias vdir="ls --format=long $COLORFLAG"
+fi
+
+# tree (with fallback)
+if which tree >/dev/null 2>&1; then
+  # displays a directory tree
+  alias tree="tree -Csu"
+  # displays a directory tree - paginated
+  alias ltree="tree -Csu | less -R"
+else
+  alias tree="find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"
+  alias ltree="tree | less -R"
+fi
+
+  # ------------------------------------------------------------------------------
+  # | Search and Find                                                            |
+  # ------------------------------------------------------------------------------
+
+  # super-grep ;)
+  alias sgrep='grep -R -n -H -C 5 --exclude-dir={.git,.svn,CVS} '
+
+  # search in files (with fallback)
+  if which ack-grep >/dev/null 2>&1; then
+    alias ack=ack-grep
+
+    alias afind="ack-grep -iH"
+  else
+    alias afind="ack -iH"
+  fi
+
+  # ------------------------------------------------------------------------------
+  # | Network                                                                    |
+  # ------------------------------------------------------------------------------
+
+  # Gzip-enabled `curl`
+  alias gurl="curl --compressed"
+
+  # displays the ports that use the applications
+  alias lsport='sudo lsof -i -T -n'
+
+  # shows more about the ports on which the applications use
+  alias llport='netstat -nape --inet --inet6'
+
+  # show only active network listeners
+  alias netlisteners='sudo lsof -i -P | grep LISTEN'
+
+  # ------------------------------------------------------------------------------
+  # | Date & Time                                                                |
+  # ------------------------------------------------------------------------------
+
+  # date
+  alias date_iso_8601='date "+%Y%m%dT%H%M%S"'
+  alias date_clean='date "+%Y-%m-%d"'
+  alias date_year='date "+%Y"'
+  alias date_month='date "+%m"'
+  alias date_week='date "+%V"'
+  alias date_day='date "+%d"'
+  alias date_hour='date "+%H"'
+  alias date_minute='date "+%M"'
+  alias date_second='date "+%S"'
+  alias date_time='date "+%H:%M:%S"'
+
+  # stopwatch
+  alias timer='echo "Timer started. Stop with Ctrl-D." && date && time cat && date'
+
+
+  # ------------------------------------------------------------------------------
+  # | Hard- & Software Infos                                                     |
+  # ------------------------------------------------------------------------------
+
+  # pass options to free
+  alias meminfo="free -m -l -t"
+
+  # get top process eating memory
+  alias psmem="ps -o time,ppid,pid,nice,pcpu,pmem,user,comm -A | sort -n -k 6"
+  alias psmem5="psmem | tail -5"
+  alias psmem10="psmem | tail -10"
+
+  # get top process eating cpu
+  alias pscpu="ps -o time,ppid,pid,nice,pcpu,pmem,user,comm -A | sort -n -k 5"
+  alias pscpu5="pscpu5 | tail -5"
+  alias pscpu10="pscpu | tail -10"
+
+  # shows the corresponding process to ...
+  alias psx="ps auxwf | grep "
+
+  # shows the process structure to clearly
+  alias pst="pstree -Alpha"
+
+  # shows all your processes
+  alias psmy="ps -ef | grep $USER"
+
+  # the load-avg
+  alias loadavg="cat /proc/loadavg"
+
+  # show all partitions
+  alias partitions="cat /proc/partitions"
+
+  # shows the disk usage of a directory legibly
+  alias du='du -kh'
+
+  # show the biggest files in a folder first
+  alias du_overview='du -h | grep "^[0-9,]*[MG]" | sort -hr | less'
+
+  # shows the complete disk usage to legibly
+  alias df='df -kTh'
+
+
+  # ------------------------------------------------------------------------------
+  # | System Utilities                                                           |
+  # ------------------------------------------------------------------------------
+
+  # becoming root + executing last command
+  alias sulast='su -c !-1 root'
+
+  # Recursively delete `.DS_Store` files
+  alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
+
+  # empty the your trash-dir
+  alias emptytrash="rm -rfv ~/.local/share/Trash/*"
+
+  # Clipboard access. I created these aliases to have the same command on
+  # Cygwin, Linux and OS X.
+  if command -v pbpaste >/dev/null; then
+    alias getclip="pbpaste"
+    alias putclip="pbcopy"
+  elif command -v xclip >/dev/null; then
+    alias getclip="xclip -selection clipboard -o"
+    alias putclip="xclip -selection clipboard -i"
+  elif [[ "$SYSTEM_TYPE" == "MINGW" || "$SYSTEM_TYPE" == "CYGWIN" ]]; then
+    alias getclip="cat /dev/clipboard"
+    alias putclip="cat > /dev/clipboard"
+  fi
+
+  # Trim new lines and copy to clipboard
+  alias pc="putclip"
+
+  # ring the terminal bell, and put a badge on Terminal.app’s Dock icon
+  # (useful when executing time-consuming commands)
+  alias badge="tput bel"
+
+
+  # ------------------------------------------------------------------------------
+  # | Other                                                                      |
+  # ------------------------------------------------------------------------------
+
+  # Language aliases
+  alias rb='ruby'
+  alias py='python'
+  alias ipy='ipython'
+
+  # decimal to hexadecimal value
+  alias dec2hex='printf "%x\n" $1'
+
+  # Canonical hex dump; some systems have this symlinked
+  command -v hd > /dev/null || alias hd="hexdump -C"
+
+  # OS X has no `md5sum`, so use `md5` as a fallback
+  command -v md5sum > /dev/null || alias md5sum="md5"
+
+  # OS X has no `sha1sum`, so use `shasum` as a fallback
+  command -v sha1sum > /dev/null || alias sha1sum="shasum"
+
+  # urldecode - url http network decode
+  alias urldecode='python -c "import sys, urllib as ul; print ul.unquote_plus(sys.argv[1])"'
+
+  # urlencode - url encode network http
+  alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1])"'
+
+  # ROT13-encode text. Works for decoding, too! ;)
+  alias rot13='tr a-zA-Z n-za-mN-ZA-M'
+
+  # intuitive map function
+  #
+  # For example, to list all directories that contain a certain file:
+  # find . -name .gitattributes | map dirname
+  alias map="xargs -n1"
+
+  # make Grunt print stack traces by default
+  command -v grunt > /dev/null && alias grunt="grunt --stack"
+
+  # Kill all the tabs in Chrome to free up memory
+  # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
+  alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
+
+  # php - package-manager - composer
+  alias composer-install="composer install --optimize-autoloader"
+
+  # add ssh-key to ssh-agent when key exist
+  if [ "$SSH_AUTH_SOCK" != "" ] && [ -f "~/.ssh/id_rsa" ] && [ -x "/usr/bin/ssh-add"  ]; then
+    ssh-add -l >/dev/null || alias ssh='(ssh-add -l >/dev/null || ssh-add) && unalias ssh; ssh'
+  fi
+
+
+  # ------------------------------------------------------------------------------
+  # | Fun                                                                        |
+  # ------------------------------------------------------------------------------
+
+  #alias nyancat="telnet miku.acm.uiuc.edu"  # offline
+
+  alias starwars="telnet towel.blinkenlights.nl"
