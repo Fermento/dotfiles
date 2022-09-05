@@ -1,0 +1,312 @@
+# Create a new directory and enter it
+function mkd() {
+	mkdir -p "$@" && cd "$@";
+}
+
+
+# Determine size of a file or total size of a directory
+function fs() {
+	if du -b /dev/null > /dev/null 2>&1; then
+		local arg=-sbh;
+	else
+		local arg=-sh;
+	fi
+	if [[ -n "$@" ]]; then
+		du $arg -- "$@";
+	else
+		du $arg .[^.]* *;
+	fi;
+}
+
+# Use Git’s colored diff when available
+hash git &>/dev/null;
+if [ $? -eq 0 ]; then
+	function diff() {
+		git diff --no-index --color-words "$@";
+	}
+fi;
+
+# Create a data URL from a file
+function dataurl() {
+	local mimeType=$(file -b --mime-type "$1");
+	if [[ $mimeType == text/* ]]; then
+		mimeType="${mimeType};charset=utf-8";
+	fi
+	echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')";
+}
+
+# Syntax-highlight JSON strings or files
+# Usage: `json '{"foo":42}'` or `echo '{"foo":42}' | json`
+function json() {
+	if [ -t 0 ]; then # argument
+		python -mjson.tool <<< "$*" | pygmentize -l javascript;
+	else # pipe
+		python -mjson.tool | pygmentize -l javascript;
+	fi;
+}
+
+# UTF-8-encode a string of Unicode symbols
+function escape() {
+	printf "\\\x%s" $(printf "$@" | xxd -p -c1 -u);
+	# print a newline unless we’re piping the output to another program
+	if [ -t 1 ]; then
+		echo ""; # newline
+	fi;
+}
+
+# `s` with no arguments opens the current directory in Sublime Text, otherwise
+# opens the given location
+function s() {
+	if [ $# -eq 0 ]; then
+		subl .;
+	else
+		subl "$@";
+	fi;
+}
+
+function c() {
+    if [[ $# = 0 ]]
+    then
+        code .
+    else
+        [[ $1 = /* ]] && F="$1" || F="$PWD/${1#./}"
+        code "$F"
+    fi
+}
+
+# `o` with no arguments opens the current directory, otherwise opens the given
+# location
+function o() {
+	if [ $# -eq 0 ]; then
+		xdg-open .;
+	else
+		xdg-open "$@";
+	fi;
+}
+
+# `sourcetree` with no arguments opens the current directory, otherwise opens the given
+# location
+function stree() {
+	if [ $# -eq 0 ]; then
+		open -a SourceTree .;
+	else
+		open -a SourceTree "$@";
+	fi;
+}
+
+function gitk() {
+	if [ $# -eq 0 ]; then
+		flatpak run com.axosoft.GitKraken -p .;
+	else
+	  flatpak run com.axosoft.GitKraken -p "$@";
+	fi;
+}
+
+# Extract files
+# http://qr.ae/Gv5Qd
+function extract () {
+	if [ -f $1 ] ; then
+		case $1 in
+			*.tar.bz2) tar xvjf $1 ;;
+			*.tar.gz) tar xvzf $1 ;;
+			*.bz2) bunzip2 $1 ;;
+			*.rar) rar x $1 ;;
+			*.gz) gunzip $1 ;;
+			*.tar) tar xvf $1 ;;
+			*.tbz2) tar xvjf $1 ;;
+			*.tgz) tar xvzf $1 ;;
+			*.zip) unzip $1 ;;
+			*.Z) uncompress $1 ;;
+			*.7z) 7z x $1 ;;
+			*) echo "don't know how to extract '$1'..." ;;
+		esac
+	else
+		echo "'$1' is not a valid file!"
+	fi
+}
+
+# Função de comprimir
+function compress() {
+  # Checa se tem pelo menos 1 argumento
+  if [ "$#" -lt 1 ]; then
+    echo "Usar: compress <arquivo ...>"
+    exit 1
+  fi
+
+  # Loop por argumentos
+  for arquivo in "$@"
+  do
+    # Checka se arquivo existe
+    if [ -a $arquivo ]; then
+      echo "> Comprimindo e Removendo ${arquivo%/} ..."
+      gtar czvf "${arquivo%/}.tar.gz" --remove-files $arquivo
+    else
+      echo "! ${arquivo} não encontrado. Pulado."
+    fi
+
+  done
+}
+
+# Mover para S3
+function mv2s3() {
+  # Checa se tem pelo menos 1 argumento
+  if [ "$#" -lt 2 ]; then
+    echo "Usar: mv2s3 <arquivos ...> <bucket/dir>"
+    exit 1
+  fi
+
+  # Parâmetros
+  _s3=${@: -1}
+
+  # Loop por argumentos (menos o último)
+  for arquivo in ${@:0:${#@}}
+  do
+    if [ -a $arquivo ]; then
+      echo "> Movendo ${arquivo} para ${_s3} ..."
+      aws s3 mv ${arquivo} s3://${_s3%/}/
+    else
+      echo "! Arquivo ${arquivo} não existe. Ignorando."
+    fi
+  done
+}
+
+function compress2s3() {
+  # Checa se tem pelo menos 1 argumento
+  if [ "$#" -lt 2 ]; then
+    echo "Usar: compress2s3 <arquivos ...> <bucket/dir>"
+    exit 1
+  fi
+
+  # Parâmetros
+  _s3=${@: -1}
+
+  # Comprime (ignora último parâmetro)
+  compress ${@:0:${#@}}
+
+  # Loop por arquivos comprimidos
+  for arquivo in ${@:0:${#@}}
+  do
+    echo "${arquivo%/}.tar.gz";
+    if [ -a "${arquivo%/}.tar.gz" ]; then
+      mv2s3 "${arquivo%/}.tar.gz" ${_s3}
+    else
+      echo "Não Encontrado"
+    fi
+  done
+}
+
+# Google it!
+function @google {
+	open "https://google.com/search?q=$*"
+}
+
+function onlyNum {
+	echo "$1" | tr -d ./-,\(\)\[\]\\
+}
+
+function archive {
+	tar cvzf "$1".tar.gz "$1"
+}
+
+# Start Web Stack
+function dev_on {
+	#Nginx
+	sudo nginx
+	#php
+	# Funções macOS
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		brew services start mysql
+		brew services restart php@8.0
+	else
+		php-fpm -D
+		#Mysql
+		mysql.server start
+	fi
+	
+	# Abre Navegador
+	open "http://localhost:80"
+}
+
+function dev_off {
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		brew services stop php@8.0
+		#Mysql
+		brew services stop mysql
+	else
+		#php70
+		sudo pkill php-fpm
+	fi
+	#Nginx
+	sudo nginx -s stop
+}
+
+# User specific aliases and functions
+function gitp() {
+	sudo chown -R git:"$MAIN_GROUP" $1
+	sudo chmod -R 4770 $1
+}
+
+function webp() {
+	sudo chown -R nginx:"$MAIN_GROUP" $1
+	sudo chmod -R 4770 $1
+	sudo chmod 6170 /var/www/
+}
+
+function grpp() {
+	sudo chgrp -R "$MAIN_GROUP" $1
+	sudo chmod -R g+rwxs $1
+}
+
+function update() {
+	echo "Updating"
+	sudo npm install npm -g;
+	sudo npm update -g;
+	sudo npm cache verify
+
+	# Funções macOS
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		echo "Updating macOS"
+
+		sudo softwareupdate -i -a;
+
+		# brew
+		brew update;
+		brew upgrade;
+		brew cleanup;
+
+		# gem
+		sudo gem update --system;
+		sudo gem update;
+		sudo gem cleanup
+
+		# mas
+		sudo mas update
+		sudo mas upgrade
+
+	fi
+
+	# Funções de Linux
+	if [[ "$OSTYPE" == "linux-gnu" ]]; then
+		echo "Updating Linux"
+		sudo "$INSTALL_TYPE" upgrade -y
+		sudo "$INSTALL_TYPE" autoremove -y
+		sudo "$INSTALL_TYPE" autoclean -y
+		# Snap
+		sudo snap set system refresh.retain=2
+		snap refresh
+		# Flatpak
+		flatpak update -y
+		flatpak uninstall --unused -y
+	fi
+}
+
+function mp42gif() {
+	for f in "$@"
+	do
+		scale="fps=20,scale='min(480,iw)':'min(480,ih)':force_original_aspect_ratio=decrease"
+		/usr/local/bin/ffmpeg -hwaccel videotoolbox -i "$f" -vf "$scale,palettegen" "$f.png"
+		/usr/local/bin/ffmpeg -hwaccel videotoolbox -i "$f" -i "$f.png" -filter_complex "$scale,paletteuse" "$f.gif"
+		gifsicle --batch --optimize=03 --lossy "$f.gif"
+		rm "$f.png"
+	done
+}
