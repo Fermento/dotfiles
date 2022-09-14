@@ -37,6 +37,7 @@ fi
 if ! [ -x "$(command -v php-fpm)" ]; then
     echo -e "\n\n>> Configurando /usr/local/bin/php-fpm para $(which php-fpm7.4)"
     sudo ln -s "$(which php-fpm7.4)" /usr/local/bin/php-fpm
+    # Instalar libs php7.4-xml php7.4-zip php7.4-pdo php7.4-mbstring php7.4-gd php7.4-mysqlnd php7.4-bcmath php7.4-fpm php7.4-json
 fi
 
 if ! [ -x "$(command -v node)" ]; then
@@ -80,6 +81,6 @@ if ! [ -x "$(command -v aws)" ]; then
 fi
 
 #USER/GROUP
-echo -e "\n\n>> Group Wheel"
-sudo groupadd -f wheel
-sudo usermod -g wheel "$(whoami)"
+echo -e "\n\n>> Group $MAIN_GROUP"
+sudo groupadd -f $MAIN_GROUP
+sudo usermod -g $MAIN_GROUP "$(whoami)"
