@@ -188,70 +188,8 @@ else
   export IS_TTY=0
 fi
 
-# make less the default pager, and specify some useful defaults
-less_options=(
-  # If the entire text fits on one screen, just show it and quit. (Be more
-  # like "cat" and less like "more".)
-  --quit-if-one-screen
-
-  # Do not clear the screen first.
-  --no-init
-
-  # Like "smartcase" in Vim: ignore case unless the search pattern is mixed.
-  --ignore-case
-
-  # Do not automatically wrap long lines.
-  # This is a problem for --quit-if-one-screen if there are chopped lines
-  #--chop-long-lines
-
-  # Allow ANSI colour escapes, but no other escapes.
-  --RAW-CONTROL-CHARS
-
-  # Do not ring the bell when trying to scroll past the end of the buffer.
-  --quiet
-
-  # Do not complain when we are on a dumb terminal.
-  --dumb
-);
-export LESS="-iMX --shift 5 ${less_options[*]}"
-unset less_options
-
-# highlight section titles in manual pages
-export LESSHISTFILE="-"     # no less history file
-if [ "$UID" != 0 ]; then
-    export LESSCHARSET=${LESSCHARSET:-"utf-8"}
-
-    [ -x "`which lesspipe 2>/dev/null`" ] && eval "$(lesspipe)"
-
-    # yep, 'less' can colorize manpages
-    export LESS_TERMCAP_mb=$'\E[01;31m'
-    export LESS_TERMCAP_md=$'\E[01;31m'
-    export LESS_TERMCAP_me=$'\E[0m'
-    export LESS_TERMCAP_se=$'\E[0m'
-    export LESS_TERMCAP_so=$'\E[01;44;33m'
-    export LESS_TERMCAP_ue=$'\E[0m'
-    export LESS_TERMCAP_us=$'\E[01;32m'
-fi
-
-# don’t clear the screen after quitting a manual page
-export MANPAGER=${MANPAGER:-"less -X"}
-
-# try to enable colored output
-if [ -x /usr/bin/dircolors ]; then
-  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-fi
-
-# colorscheme for OS X `ls` environment variable:
-export CLICOLOR=1
-export LSCOLORS=${LSCOLORS:-"Gxfxcxdxbxegedabagacad"}
-
 # "ls" default options
 export LS_OPTIONS=${LS_OPTIONS:-"-hFN --color=auto"}
-
-# export GREP_COLOR=${GREP_COLOR:-"1;32"}
-
-# colored GCC (>= v4.9) warnings and errors
-export GCC_COLORS=${GCC_COLORS:-"error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"}
 
 # lazy add local bin
 LOCAL_BIN="$HOME/.local/bin"

@@ -51,6 +51,15 @@ echo -e "\n\n>> .bash_profile"
 ln -sf ~/.dotfiles/.bashrc ~/.bashrc
 ln -sf ~/.dotfiles/.bashrc ~/.bash_profile
 
+# Diretório
+sudo mkdir -p /var/run/mysqld
+sudo mkdir -p /var/php/
+# Permissões
+sudo grpp /var/log/
+sudo cmod a+rw /var/run/mysqld/
+sudo grpp /var/php/
+
+
 # App Specific
 if ! [ -f ~/.finicky.js ]; then
 	echo -e "\n\n>> .gitconfig .bowerrc .editorconfig .gitignore_global .finicky.js"

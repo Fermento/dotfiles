@@ -303,7 +303,7 @@
   editor=vim
 
   # Global `.gitignore`
-	excludesfile = /Users/luizjr8/.gitignore_global
+	excludesfile = /Users/diasbala/.gitignore_global
 
   # Make `git rebase` safer on OS X
   # More info: http://www.git-tower.com/blog/make-git-rebase-safe-on-osx
@@ -489,3 +489,7 @@
 [mergetool "sourcetree"]
 	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
+[user]
+	name = matheus
+	email = matheus@fermen.to
+	nome = matheus

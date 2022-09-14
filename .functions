@@ -218,9 +218,9 @@ function dev_on {
 		brew services start mysql
 		brew services restart php@8.0
 	else
-		php-fpm -D
+		sudo php-fpm -D
 		#Mysql
-		mysql.server start
+		sudo mysqld_safe --no-watch
 	fi
 	
 	# Abre Navegador
@@ -235,9 +235,11 @@ function dev_off {
 	else
 		#php70
 		sudo pkill php-fpm
+		# mysql
+		sudo pkill mysqld
 	fi
 	#Nginx
-	sudo nginx -s stop
+	sudo pkill nginx
 }
 
 # User specific aliases and functions
@@ -252,6 +254,7 @@ function webp() {
 	sudo chmod 6170 /var/www/
 }
 
+# TODO: Grupo dinâmico
 function grpp() {
 	sudo chgrp -R "$MAIN_GROUP" $1
 	sudo chmod -R g+rwxs $1
