@@ -216,30 +216,25 @@ function dev_on {
 	# Funções macOS
 	if [[ "$OSTYPE" == "darwin"* ]]; then
 		brew services start mysql
-		brew services restart php@8.0
 	else
-		sudo php-fpm -D
 		#Mysql
 		sudo mysqld_safe --no-watch
 	fi
+
+	# PHP-FPM
+	php-fpm -D -c ~/.dotfiles/etc/php-fpm/php.ini -y ~/.dotfiles/etc/php-fpm/php-fpm.conf
 	
 	# Abre Navegador
 	open "http://localhost:80"
 }
 
 function dev_off {
-	if [[ "$OSTYPE" == "darwin"* ]]; then
-		brew services stop php@8.0
-		#Mysql
-		brew services stop mysql
-	else
-		#php70
-		sudo pkill php-fpm
-		# mysql
-		sudo pkill mysqld
-	fi
 	#Nginx
-	sudo pkill nginx
+	sudo nginx -s stop
+	# PHP-fpm
+	sudo pkill php-fpm
+	# PHP-fpm
+	sudo pkill mysqld
 }
 
 # User specific aliases and functions
